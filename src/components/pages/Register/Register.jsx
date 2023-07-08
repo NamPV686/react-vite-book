@@ -1,6 +1,7 @@
 import { Button, Divider, Form, Input, message, notification } from "antd";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { callRegister } from "../../../services/api";
 
 const Register = () => {
 
@@ -10,6 +11,20 @@ const Register = () => {
     const onFinish = async (values) => {
         const { fullName, email, password, phone } = values;
 
+        setIsSubmit(true);
+        const res = await callRegister(fullName, email, password, phone);
+        setIsSubmit(false);
+
+        if(res && res.data){
+            message.info('Đăng ký tài khoản thành công!');
+            navigate('/login');
+        } else{
+            notification.error({
+                message: 'Đã có lỗi xảy ra',
+                description: res.message && Array.isArray(res.message) ? res.message[0] : res.message,
+                duration: 5
+            });
+        }
     }
 
     return (
