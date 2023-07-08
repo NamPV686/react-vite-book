@@ -1,7 +1,9 @@
-import { Button, Divider, Form, Input } from "antd"
+import { Button, Divider, Form, Input, message, notification } from "antd"
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { callLogin } from "../../../services/api";
+import { doLoginAction } from "../../../redux/account/accountSlice";
 
 const Login = () => {
 
@@ -12,7 +14,23 @@ const Login = () => {
 
     const onFinish = async (values) => {
         const { username, password } = values;
-        console.log(username);
+
+        setIsSubmit(true);
+        const res = await callLogin(username, password);
+        setIsSubmit(false);
+
+        if(res && res.data){
+            localStorage.getItem('access_token', res.data.access_token);
+            dispatch(doLoginAction(res.data.user));
+            message.success('Đăng nhập thành công !');
+            navigate('/');
+        } else{
+            notification.error({
+                message: 'Có lỗi xảy ra',
+                description: res.message && Array.isArray(res.message) ? res.message[0] : res.message,
+                duration: 5
+            });
+        }
     }
 
     return (
